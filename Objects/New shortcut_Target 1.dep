@@ -1,0 +1,2 @@
+Dependencies for Project 'New shortcut', Target 'Target 1': (DO NOT MODIFY !)
+F (.\assigment.s)(0x6311771C)(--cpu Cortex-M4 --li --pd "__EVAL SETA 1" -g --apcs=interwork -I"C:\Users\LENOVO\OneDrive\Desktop\university things\ENCS2380\New folder\project\RTE"-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\Device\ARM\ARMCM4\Include-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 521" --pd "ARMCM4 SETA 1"--list .\listings\assigment.lst --xref -o .\objects\assigment.o --depend .\objects\assigment.d)

@@ -1,0 +1,331 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         
+    2 00000000         ;;; Directives
+    3 00000000                 PRESERVE8
+    4 00000000                 THUMB
+    5 00000000         ; Vector Table Mapped to Address 0 at Reset
+    6 00000000         ; Linker requires __Vectors to be exported
+    7 00000000                 AREA             RESET, DATA, READONLY
+    8 00000000                 EXPORT           __Vectors
+    9 00000000         __Vectors
+   10 00000000 20001000        DCD              0x20001000  ; stack pointer val
+                                                            ue when stack is em
+                                                            pty
+   11 00000004 00000000        DCD              Reset_Handler ; reset vector
+   12 00000008         
+   13 00000008                 ALIGN
+   14 00000008         
+   15 00000008 0000002B 
+              FFFFFFC8 
+              0000001B 
+              FFFFFFFB 
+              00000026 
+              00000005 
+              FFFFFFD2 
+              FFFFFFFE 
+              00000011 
+              FFFFFFFF 
+              00000023 ARRAY   DCD              43,-56,27,-5,38,5,-46,-2,17,-1,
+'#' 
+                                                            ;this where i decla
+                                                            re the array 
+   16 00000034 00000000 
+                       ARRAY_POINTER
+                               DCD              ARRAY       ;create a pointer t
+                                                            o the array to make
+                                                             easier to recall
+   17 00000038         
+   18 00000038        0 
+                       SUM     RN               R0          ;the sum of element
+                                                            s          ; declar
+                                                            e the variables -gi
+                                                            ve each regeister a
+                                                             name
+   19 00000038        3 
+                       SUMP    RN               R3          ;the sum of postive
+                                                             elements 
+   20 00000038        4 
+                       SUMN    RN               R4          ;the sum of negativ
+                                                            e elements 
+   21 00000038        5 
+                       ENERGY  RN               R5          ; a variable to sav
+                                                            e the energy
+   22 00000038        6 
+                       COUNTER RN               R6          ; a counter to use 
+                                                            it the division
+   23 00000038        8 
+                       SUME    RN               R8          ; the summation of 
+                                                            the squared elemnts
+                                                             
+   24 00000038        C 
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+                       CROSSING
+                               RN               R12         ; a variable to sav
+                                                            e the number of cro
+                                                            sses
+   25 00000038         
+   26 00000038         
+   27 00000038                 AREA             MYCODE, CODE, READONLY
+   28 00000000         ENTRY
+   29 00000000                 EXPORT           Reset_Handler
+   30 00000000         Reset_Handler
+   31 00000000         
+   32 00000000         
+   33 00000000 F85F 1004       LDR              R1,ARRAY_POINTER ;load the firs
+                                                            t element of the ar
+                                                            ray to R1 but it is
+                                                             the address
+   34 00000004 F04F 0000       MOV              SUM,#0      ;give initial value
+                                                            s for each 
+   35 00000008 F04F 0300       MOV              SUMP,#0
+   36 0000000C F04F 0400       MOV              SUMN,#0
+   37 00000010 F04F 0500       MOV              ENERGY,#0
+   38 00000014 F04F 0600       MOV              COUNTER,#0
+   39 00000018 F04F 0800       MOV              SUME,#0
+   40 0000001C F04F 0C00       MOV              CROSSING,#0
+   41 00000020         SUM_LOOP                             ;starting the summa
+                                                            tion loop 
+   42 00000020         ;;in this loop all opreations will be done 
+   43 00000020         
+   44 00000020 680A            LDR              R2,[R1]     ;Load number at eac
+                                                            h time 
+   45 00000022 2A23            CMP              R2,'#'      ;if the element was
+                                                             # which is a chara
+                                                            cter the this array
+                                                             is ended and 
+   46 00000024 D00F            BEQ              END_SUM_LOOP ;it will exsit the
+                                                             loop
+   47 00000026 F106 0601       ADD              COUNTER,COUNTER,#1 ; increament
+                                                             the loop
+   48 0000002A         
+   49 0000002A 2E02            CMP              COUNTER,#2  ; compare the count
+                                                            er with 2 means as 
+                                                            lond as the counter
+                                                             is more than 2 the
+                                                            n
+   50 0000002C         ;go and find the crossing 
+   51 0000002C D20E            BHS              FIND_CROSSING ; do Barnch to fi
+                                                            nd_crossing if the 
+                                                            counter is more tha
+                                                            n or same to 2
+   52 0000002E         
+   53 0000002E         CONTINUE                             ;this label here to
+                                                             come back from the
+                                                             Find_crossing Labe
+                                                            l -come back-
+   54 0000002E         
+   55 0000002E 2A00            CMP              R2,#0       ;check if R2 has 0 
+                                                            , if it is 0 then i
+                                                            t is not postive an
+                                                            d not negative 
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   56 00000030         
+   57 00000030 BF54 189B       ADDPL            SUMP,SUMP,R2 ;Addpl it is like 
+                                                            a function that add
+                                                             only the postive e
+                                                            lements 
+   58 00000034 18A4            ADDMI            SUMN,SUMN,R2 ;Addmi add only th
+                                                            e negative elements
+                                                             
+   59 00000036         
+   60 00000036 4410            ADD              SUM,SUM,R2  ; add the element t
+                                                            o the summation 
+   61 00000038 F101 0104       ADD              R1,R1,#4    ;increament R1 so i
+                                                            t do the next numbe
+                                                            r in the next loop
+   62 0000003C FB02 F702       MUL              R7,R2,R2    ; muliply by itself
+                                                             -as a power 2-
+   63 00000040 44B8            ADD              SUME,SUME,R7 ;sum the squared e
+                                                            lement to energy su
+                                                            mmation 
+   64 00000042         
+   65 00000042 4691            MOV              R9,R2       ;we do copy to use 
+                                                            it in the crossing 
+                                                            -easier to compare-
+                                                            -this will be i+1 i
+                                                            n the next loop-
+   66 00000044         
+   67 00000044 E7EC            B                SUM_LOOP    ;go back and do the
+                                                             loop aganin
+   68 00000046         
+   69 00000046         END_SUM_LOOP                         ;end the loop 
+   70 00000046         
+   71 00000046 FBB8 F5F6       UDIV             ENERGY,SUME,COUNTER ;divide the
+                                                             energy summation b
+                                                            y the counter
+   72 0000004A E008            B                STOP        ; branch to go to t
+                                                            he end of program  
+                                                                               
+                                                             
+   73 0000004C         
+   74 0000004C         FIND_CROSSING                        ; this label to som
+                                                            e how split the cro
+                                                            ssing prossec from 
+                                                            the code and
+   75 0000004C         ;connect them by branches 
+   76 0000004C F009 4A00       BIC              R10,R9,0x7FFFFFFF ;do the AND l
+                                                            ogical opration to 
+                                                            compare the MSB  be
+                                                            tween  the two elem
+                                                            ents 
+   77 00000050 F002 4B00       BIC              R11,R2,0x7FFFFFFF
+   78 00000054         
+   79 00000054 45DA            CMP              R10,R11     ; if the two elemen
+                                                            ts with differenet 
+                                                            signs
+   80 00000056 BF18 F10C 
+              0C01             ADDNE            CROSSING,CROSSING,#1 ; the incr
+                                                            eament the crossing
+                                                             counter
+   81 0000005C E7E7            B                CONTINUE    ; back to the main 
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+                                                            loop 
+   82 0000005E         
+   83 0000005E E7FE    STOP    B                STOP        ; do to stop which 
+                                                            ends the program 
+   84 00000060                 END
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4 --apcs=interw
+ork --depend=.\objects\assigment.d -o.\objects\assigment.o -I"C:\Users\LENOVO\O
+neDrive\Desktop\university things\ENCS2380\New folder\project\RTE" -IC:\Keil_v5
+\ARM\PACK\ARM\CMSIS\4.5.0\Device\ARM\ARMCM4\Include -IC:\Keil_v5\ARM\CMSIS\Incl
+ude --predefine="__EVAL SETA 1" --predefine="__UVISION_VERSION SETA 521" --pred
+efine="ARMCM4 SETA 1" --list=.\listings\assigment.lst assigment.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+ARRAY 00000008
+
+Symbol: ARRAY
+   Definitions
+      At line 15 in file assigment.s
+   Uses
+      At line 16 in file assigment.s
+Comment: ARRAY used once
+ARRAY_POINTER 00000034
+
+Symbol: ARRAY_POINTER
+   Definitions
+      At line 16 in file assigment.s
+   Uses
+      At line 33 in file assigment.s
+Comment: ARRAY_POINTER used once
+RESET 00000000
+
+Symbol: RESET
+   Definitions
+      At line 7 in file assigment.s
+   Uses
+      None
+Comment: RESET unused
+__Vectors 00000000
+
+Symbol: __Vectors
+   Definitions
+      At line 9 in file assigment.s
+   Uses
+      At line 8 in file assigment.s
+Comment: __Vectors used once
+4 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+CONTINUE 0000002E
+
+Symbol: CONTINUE
+   Definitions
+      At line 53 in file assigment.s
+   Uses
+      At line 81 in file assigment.s
+Comment: CONTINUE used once
+END_SUM_LOOP 00000046
+
+Symbol: END_SUM_LOOP
+   Definitions
+      At line 69 in file assigment.s
+   Uses
+      At line 46 in file assigment.s
+Comment: END_SUM_LOOP used once
+ENTRY 00000000
+
+Symbol: ENTRY
+   Definitions
+      At line 28 in file assigment.s
+   Uses
+      None
+Comment: ENTRY unused
+FIND_CROSSING 0000004C
+
+Symbol: FIND_CROSSING
+   Definitions
+      At line 74 in file assigment.s
+   Uses
+      At line 51 in file assigment.s
+Comment: FIND_CROSSING used once
+MYCODE 00000000
+
+Symbol: MYCODE
+   Definitions
+      At line 27 in file assigment.s
+   Uses
+      None
+Comment: MYCODE unused
+Reset_Handler 00000000
+
+Symbol: Reset_Handler
+   Definitions
+      At line 30 in file assigment.s
+   Uses
+      At line 11 in file assigment.s
+      At line 29 in file assigment.s
+
+STOP 0000005E
+
+Symbol: STOP
+   Definitions
+      At line 83 in file assigment.s
+   Uses
+      At line 72 in file assigment.s
+      At line 83 in file assigment.s
+
+SUM_LOOP 00000020
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+
+Symbol: SUM_LOOP
+   Definitions
+      At line 41 in file assigment.s
+   Uses
+      At line 67 in file assigment.s
+Comment: SUM_LOOP used once
+8 symbols
+352 symbols in table
